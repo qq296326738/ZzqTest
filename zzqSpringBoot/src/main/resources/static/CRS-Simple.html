@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>CRS坐标参考系统</title>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+            integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+            crossorigin=""></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            width: 600px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+<div id='map'></div>
+<script>
+    var map = L.map('map', {
+        crs: L.CRS.Simple, //Leaflet映射具有一个CRS（仅一个 CRS ）, 它代表一个正方形网格
+        minZoom: -5 //最小缩放比例
+    });
+    var yx = L.latLng;
+
+    var xy = function (x, y) {
+        if (L.Util.isArray(x)) {    // When doing xy([x, y]);
+            return yx(x[1], x[0]);
+        }
+        return yx(y, x);  // When doing xy(x, y);
+    };
+    // 添加一个L.ImageOverlay星图图像及地图大小边界
+    var bounds = [xy(-25, -26.5), xy(1023, 1021.5)];
+//    var bounds = [[-26.5,-25], [1021.5,1023]];
+    var image = L.imageOverlay('./png/uqm_map_full.png', bounds).addTo(map);
+
+
+
+    //显示整个地图
+    map.fitBounds(bounds);
+
+    var sol = L.latLng([ 145, 175.2 ]);
+    L.marker(sol).addTo(map);
+    map.setView( [70, 120], 1);
+
+
+        var sol = xy(175.2, 145.0);
+        var mizar = xy(41.6, 130.1);
+        var kruegerZ = xy(13.4, 56.5);
+        var deneb = xy(218.7, 8.3);
+
+        L.marker(sol).addTo(map).bindPopup('Sol');
+        L.marker(mizar).addTo(map).bindPopup('Mizar');
+        L.marker(kruegerZ).addTo(map).bindPopup('Krueger-Z');
+        L.marker(deneb).addTo(map).bindPopup('Deneb');
+        //点连接
+        var travel = L.polyline([sol, mizar,deneb]).addTo(map);
+
+        map.setView(xy(120, 70), 1);
+
+</script>
+
+
+</body>
+</html>

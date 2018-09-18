@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>全图-定位</title>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+            integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+            crossorigin=""></script>
+
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            width: 600px;
+            height: 400px;
+        }
+    </style>
+
+    <style>body {
+        padding: 0;
+        margin: 0;
+    }
+
+    #map {
+        height: 100%;
+        width: 100vw;
+    }</style>
+</head>
+<body>
+<!--全图定位-->
+<div id='map'></div>
+
+<script>
+    var map = L.map('map', {
+        minZoom: 13,
+        maxZoom: 15,
+//        center: [0, 0],  //初始地理中心
+        zoom: 1
+//        , crs: L.CRS.Simple  //Leaflet在屏幕像素与其内部纬度 - 经度坐标系之间使用简单的1-1映射
+    }).setView([30.666349, 104.064482], 15);
+
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox.streets'
+    }).addTo(map);
+    /*****************************网络地图服务*************************************************/
+    /*var nexrad = L.tileLayer.wms("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+        layers: 'nexrad-n0r-900913',
+        format: 'image/png',
+        transparent: true,
+        attribution: "Weather data © 2012 IEM Nexrad"
+    }).addTo(map);*/
+    /*****************************地图点击事件*************************************************/
+    var aa = function (e) {
+        L.popup().setLatLng(e.latlng).setContent(e.latlng.toString()).openOn(map);
+    };
+    map.on("click", aa);
+    /*****************************加载图片*************************************************/
+        //图像大小和坐标
+//    var w = 4000,
+//        h = 3000,
+//        url = 'http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg';
+//    // 图像大小（以像素为单位）及其位置  地图已左上角[0,0]开始
+//    var southWest = map.unproject([0, h], map.getMaxZoom() - 1);
+//    var northEast = map.unproject([w, 0], map.getMaxZoom() - 1);
+//    var bounds = new L.LatLngBounds(southWest, northEast);
+//    var img = L.imageOverlay(url, bounds).addTo(map);
+        //    map.setMaxBounds(bounds); //设置地图边缘
+
+    var imageUrl = 'http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg',
+        imageBounds = [[30.712634, 104.006567], [30.613736, 104.139797]];
+    var img = L.imageOverlay(imageUrl, imageBounds, {
+        opacity: 0.8 //透明度 0 完全透~~~~~~ 1 不透明
+        , interactive: true //开启鼠标事件
+    }).addTo(map);
+    /*****************************设置地图边缘*************************************************/
+
+    map.setMaxBounds(imageBounds);
+
+    img.on("load", function () {
+        console.log("图片加载事件完成");
+    });
+
+    img.on("contextmenu", function (e) {
+        L.popup().setLatLng(e.latlng).setContent("右键(事件)点我干嘛<br/>" +
+            e.latlng
+        ).openOn(map);
+    });
+    //    img.bindPopup("窗口弹出");
+    img.bindPopup("<h5>我是弹出层事件哦,点击图片外面是地图点击事件</h5><br/>" +
+        "<img src='./png/1.png' width='100'>" +
+        "<img src='./png/2.png' width='100'>" +
+        "<img src='./png/3.png' width='100'>", {maxWidth: 2000, minWidth: 300});
+    //    img.on("popupopen",function () {
+    //        console.log("弹出窗口事件");
+    //    });
+    /*****************************添加标记*************************************************/
+    L.marker([30.669529, 104.065825]).addTo(map);
+    /*****************************定位*************************************************/
+//    -105.069335, 201.999585  定位
+    map.locate({setView: true, maxZoom: 16});
+
+    //	成功定位事件
+    function onLocationFound(e) {
+        var radius = e.accuracy / 2;
+        L.marker(e.latlng).addTo(map)
+            .bindPopup("You are within " + radius + " meters from this point").openPopup();
+        L.circle(e.latlng, radius).addTo(map); //画圆
+    }
+
+    //定位成功事件
+    map.on('locationfound', onLocationFound);  //失败事件locationerror
+
+    /*****************************添加视频*************************************************/
+
+    var videoUrl = 'https://www.mapbox.com/bites/00188/patricia_nasa.webm',
+        videoBounds = [[30.628043, 104.006033], [30.610912, 104.035048]];
+    var video = L.videoOverlay(videoUrl, videoBounds,
+        {
+            autoplay: true
+            , loop: true
+        }).addTo(map);
+    video.bringToFront();
+    /*****************************路径*************************************************/
+    //选项
+    //stroke	            Boolean	true	    是否沿路径绘制笔划。将其设置false为禁用多边形或圆形的边框。
+    //color	                String	'#3388ff'	中风颜色
+    //weight	            Number	3	        笔画宽度（以像素为单位）
+    //opacity	            Number	1.0	        中风不透明度
+    //lineCap	            String	'round'	    一个字符串，用于定义要在笔划结束时使用的形状。
+    //lineJoin	            String	'round'	    一个字符串，用于定义要在笔触的角上使用的形状。
+    //dashArray	            String	null	    用于定义笔触虚线图案的字符串。Canvas在某些旧浏览器中不适用于动态图层。
+    //dashOffset	        String	null	    一个字符串，用于定义到破折号模式的距离以启动破折号。Canvas在某些旧浏览器中不适用于动态图层。
+    //fill	                Boolean	depends	    是否用颜色填充路径。将其设置false为禁用填充多边形或圆形。
+    //fillColor	            String	*	        填色。默认为color选项的值
+    //fillOpacity	        Number	0.2	        填充不透明度。
+    //fillRule	            String	'evenodd'	一个字符串，用于定义如何确定形状的内部。
+    //bubblingMouseEvents	Boolean	true	    何时true，此路径上的鼠标事件将在地图上触发相同的事件（除非L.DomEvent.stopPropagation使用）。
+    //renderer	            Renderer		    将此特定实例Renderer用于此路径。优先于地图的默认渲染器。
+    //className	            String	null	    在元素上设置自定义类名。仅适用于SVG渲染器。
+    //interactive	        Boolean	true	    如果false，图层不会发出鼠标事件，并将作为底层地图的一部分。
+    /*****************************折线**************************/
+    var latlngs = [
+            [
+                [30.642941, 104.098905],
+                [30.635558, 104.126633],
+                [30.616509, 104.114786]
+            ], [
+                [30.637847, 104.100365],
+                [30.626551, 104.109035],
+                [30.622342, 104.102855]
+            ]
+        ]
+    ;
+    var polyline = L.polyline(latlngs, {
+        color: 'red'
+    }).addTo(map);
+    //    map.fitBounds(polyline.getBounds()); //显示到折现的位置
+    var toGeoJSON = polyline.toGeoJSON();
+    console.log(toGeoJSON);
+    /*****************************多边形**************************/
+    var latlngs = [[30.700372, 104.09942], [30.700593, 104.131182], [30.691149, 104.13144], [30.691371, 104.099249]];
+    var polygon = L.polygon(latlngs, {color: 'red'}).addTo(map);
+    //    map.fitBounds(polygon.getBounds());
+    //可以传递一系列latlngs数组，第一个数组表示外部形状，另一个数组表示外部形状中的孔：
+    //可以传递多维数组以表示MultiPolygon形状。
+    var latlngs1 = [
+        [[30.685094, 104.10088], [30.685094, 104.130238], [30.678895, 104.130238], [30.679485, 104.09942]], // outer ring
+        [[30.685351, 104.111088], [30.685277, 104.117569], [30.683137, 104.117097], [30.68358, 104.111689]] // hole
+    ];
+    L.polygon(latlngs1, {color: "red"}).addTo(map);
+    /*****************************长边形**************************/
+        // define rectangle geographical bounds
+    var bounds = [[30.672473, 104.103541], [30.665019, 104.120538]];
+    // create an orange rectangle
+    L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(map).bindPopup("我是长方形");
+    var center = L.circle([30.6527, 104.112307], {radius: 500}).addTo(map).bindPopup("<h1>我是圆圆</h1>"); //radius 圆的半径，以米为单位
+    L.circleMarker([30.651224, 104.128445], {radius: 50}).addTo(map); //圆形标记的半径，以像素为单位
+    /*****************************SVG**************************/
+        //可缩放矢量图形（Scalable Vector Graphics，SVG)，是一种用来描述二维矢量图形的 XML 标记语言
+        //默认情况下，对地图中的所有路径使用SVG：var map = L.map('map', {renderer: L.svg()});
+        //使用具有额外填充的SVG渲染器来处理特定的矢量几何
+    var myRenderer = L.svg({padding: 0.5});
+    var line = L.polyline(bounds, {renderer: myRenderer});
+    var circle = L.circle(center, {renderer: myRenderer});
+    /*****************Canvas渲染器和额外的填充**********************/
+    var myRenderer1 = L.canvas({padding: 0.5});
+    var line = L.polyline(bounds, {renderer: myRenderer1});
+    var circle = L.circle(center, {renderer: myRenderer1});
+    /**********************************图层组*******************************************/
+    var marker1 = L.marker([30.691073, 104.047915]).addTo(map);
+    var marker2 = L.marker([30.692106, 104.062508]).addTo(map);
+    L.layerGroup([marker1, marker2])
+        .addLayer(polyline)
+        .addTo(map);
+    /**********************************图层组(FeatureGroup)*******************************************/
+    /*扩展LayerGroup使得更容易对其所有成员层执行相同的操作：
+      bindPopup一次将弹出窗口绑定到所有图层（同样如此bindTooltip）
+      事件传播到FeatureGroup，因此如果组具有事件处理程序，它将处理来自任何层的事件。这包括鼠标事件和自定义事件。
+      有layeradd和layerremove事件*/
+    L.featureGroup([marker1, marker2, polygon])
+        .bindPopup('Hello world!')
+        .on('click', function () {
+            alert('组图层统一绑定!');
+        })
+        .addTo(map);
+    /**********************************GeoJSON*******************************************/
+        //GeoJSON对象或GeoJSON对象的数组。允许您解析GeoJSON数据并将其显示在地图上
+    var latlng = L.latLng(50.5, 30.5);
+    /* var data = {};
+     L.geoJSON(data, {
+         pointToLayer: function (geoJsonPoint, latlng) {
+             return L.marker(latlng);
+         }
+     });*/
+
+    /* L.geoJSON(data, {
+         style: function (feature) {
+             return {color: feature.properties.color};
+         }
+     }).bindPopup(function (layer) {
+         return layer.feature.properties.description;
+     }).addTo(map);*/
+
+    /**********************************GridLayer*******************************************/
+    /*用于处理HTML元素的平铺网格的通用类。
+    这是所有切片图层和替换的基类TileLayer.Canvas。GridLayer可以扩展为创建一个HTML元素的平铺网格，
+    如<canvas>，<img>或<div>。GridLayer将为您处理创建和动画这些DOM元素*/
+
+    /**********************************经纬度*******************************************/
+    var latlng = L.latLng(50.5, 30.5);
+    //等效于
+    map.panTo([30.669155, 104.040103]);
+    map.panTo({lon: 30.669155, lat: 104.040103});
+    map.panTo({lat: 104.040103, lng: 30.669155});
+    map.panTo(L.latLng(50.5, 30.5));
+
+    /**********************************LatLngBounds*******************************************/
+        //表示地图上的矩形地理区域
+    var corner1 = L.latLng(30.641628, 104.02303),
+        corner2 = L.latLng(30.633064, 104.043632),
+        bounds = L.latLngBounds(corner1, corner2)
+    //等效于
+    map.fitBounds([
+        [30.641628, 104.02303],
+        [30.633064, 104.043632]
+    ]);
+    /**********************************点*******************************************/
+    var point = L.point(30.670034, 104.058384);
+
+    map.panBy([30.670034, 104.058384]);
+    //    map.panBy(L.point(200, 300));
+
+    /**********************************边界*******************************************/
+    var p1 = L.point(10, 10),
+        p2 = L.point(40, 60),
+        bounds = L.bounds(p1, p2);
+    /**********************************图标*******************************************/
+    var myIcon = L.icon({
+        iconUrl: './png/leaf-green.png',   //图标图像的URL
+        iconSize: [38, 95],                //图标图像的大小（以像素为单位）。
+        iconAnchor: [22, 94],              //图标位置
+        popupAnchor: [-3, -76],            //弹出窗口相对于图标锚点“打开”的点的坐标
+        shadowUrl: './png/leaf-shadow.png',
+        shadowSize: [68, 95],
+        shadowAnchor: [22, 94]
+    });
+    L.marker([30.650007, 104.077597], {icon: myIcon}).addTo(map);
+    /*********** leaflet内部使用的用于浏览器/特征检测的静态属性的命名空间*******************/
+    if (L.Browser.ielt9) {
+        alert('Upgrade your browser, dude!');
+    }
+</script>
+
+
+</body>
+</html>
