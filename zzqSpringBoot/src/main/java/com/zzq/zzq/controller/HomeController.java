@@ -1,9 +1,7 @@
 package com.zzq.zzq.controller;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -55,6 +53,11 @@ public class HomeController {
     @RequestMapping("/leaflet")
     public String leaflet() {
         return "leaflet";
+    }
+
+    @RequestMapping("/api")
+    public String api() {
+        return "MapApi";
     }
 
 }
