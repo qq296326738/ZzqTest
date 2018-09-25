@@ -9,10 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 public class RedisLock {
 
-//    @Autowired
+    @Autowired
     private RedisTemplate<String, String> redisTemplate;
-
-
     private static final int DEFAULT_SINGLE_EXPIRE_TIME = 3;
     private Logger logger = LoggerFactory.getLogger(RedisLock.class);
 
