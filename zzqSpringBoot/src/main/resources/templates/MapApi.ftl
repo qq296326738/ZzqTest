@@ -205,7 +205,86 @@
     /************GridLayer *************/
     /*用于处理HTML元素的平铺网格的通用类。这是所有tile层和替换的基类TileLayer.Canvas。
      GridLayer可以扩展到创建HTML元素的像平铺格<canvas>, <img> 或 <div>。GridLayer将为您处理创建这些DOM元素。*/
+    var CanvasLayer = L.GridLayer.extend({
+        createTile: function (coords) {
+            // create a <canvas> element for drawing
+            var tile = L.DomUtil.create('canvas', 'leaflet-tile');
+            // setup tile width and height according to the options
+            var size = this.getTileSize();
+            tile.width = size.x;
+            tile.height = size.y;
+            // get a canvas context and draw something on it using coords.x, coords.y and coords.z
+            var ctx = tile.getContext('2d');
+            // return the tile so it can be rendered on screen
+            return tile;
+        }
+    });
 
+    /************LatLng 经纬度*************/
+    var latlng1 = L.latLng(50.49942395315427, 30.499157286347117);
+    var latlng2 = L.latLng(50.499396655297666, 30.503631462153123);
+    var mi = latlng1.distanceTo(latlng2);
+    console.log(mi + "米")
+    /************LatLngBounds 表示地图上的矩形地理区域*************/
+    var corner1 = L.latLng(40.712, -74.227),
+            corner2 = L.latLng(40.774, -74.125),
+            bounds = L.latLngBounds(corner1, corner2);
+    /************Point 表示一个像素点*************/
+    var point = L.point(200, 300);
+
+    /************Icon 创建marker标记时要提供的图标。*************/
+    var myIcon = L.icon({
+        iconUrl: 'https://assets-cdn.github.com/images/search-shortcut-hint.svg', //（必需）icon图标图像的URL（绝对或相对于您的脚本路径）。
+        iconSize: [38, 95], //icon图片的大小（单位：像素）
+        iconAnchor: [22, 94], //图标的“指示地理位置的锚点”的坐标
+        popupAnchor: [-3, -76], //popup弹窗相对于图标的锚点“打开”的点的坐标。
+        shadowUrl: 'https://assets-cdn.github.com/images/search-shortcut-hint.svg', //图标阴影图像的URL。如果未指定，将不会创建阴影图像。
+        shadowSize: [68, 95], //阴影部分的图片大小（单位：像素）
+        shadowAnchor: [22, 94] //阴影（相对于其左上角）的“提示”的坐标（与未指定的iconAnchor相同）。
+    });
+    L.marker([50.50376458548168, 30.498435407709408], {icon: myIcon}).addTo(map);
+    /************DivIcon 创建marker标记时要提供的图标。*************/
+    /*使用<div>元素而不是图像的标记的轻量级图标。继承Icon 而忽略iconUrl和阴影选项。
+     DivIcon可以用于显示文字marker标记，因为div内部内容完成有你自由控制，
+     所以可以用DivIcon创建任意你能够想到的marker标记。*/
+    var myIcon1 = L.divIcon({className: 'my-div-icon'});
+    // you can set .my-div-icon styles in CSS
+    L.marker([50.505, 30.57], {icon: myIcon1}).addTo(map);
+    /************Control.Zoom  具有两个按钮（放大和缩小）的地图级别控制控件*************/
+    L.control.zoom({
+        zoomInText: "放大"
+        , zoomInTitle: "提示放大"
+        , zoomOutText: "缩小"
+        , zoomOutTitle: "提示缩小"
+        , position: "topright" //控件的位置（显示在地图的四角）。可选值有： 'topleft', 'topright', 'bottomleft' 或 'bottomright'
+    });
+    /************Control.Attribution  该控件允许您在地图上的小文本框中显示地图数据商的版权信息*************/
+    //    L.control.attribution(<Control.Attribution options> options)
+    /************Control.Layers  图层控制控件，使用户能够在不同的基础层之间切换和切换覆盖的图层*************/
+    var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+    //创建图层
+    var grayscale = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
+            streets = L.tileLayer(mbUrl, {id: 'mapbox.streets', attribution: mbAttr});
+
+    var baseLayers = {
+        "灰色图层": grayscale,
+        "彩色图层": streets,
+        "<img src='https://assets-cdn.github.com/images/search-shortcut-hint.svg'/>":streets
+    };
+    var overlays = {
+        "Marker": marker
+//        "Roads": roadsLayer
+    };
+    L.control.layers(baseLayers, overlays).addTo(map);
+    /************Control.Scale  一个简单的比例尺显示控件，显示当前屏幕中心的尺度（m / km）和英制（mi / ft）比例值。*************/
+    L.control.scale().addTo(map);
+
+    var aaaaa = L.marker([50.50047576159136, 30.504934787750248]).addTo(map);
+    aaaaa.bindPopup("aaaaaaaaaaaaaaa",{minWidth:300});
+    L.tooltip();
 
 </script>
 </body>

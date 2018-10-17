@@ -96,17 +96,22 @@
     img.on("load", function () {
         console.log("图片加载事件完成");
     });
-
     img.on("contextmenu", function (e) {
-        L.popup().setLatLng(e.latlng).setContent("右键(事件)点我干嘛<br/>" +
-            e.latlng
+        L.popup().setLatLng(e.latlng).setContent(
+            "右键(事件)点我干嘛<br/>"+ e.latlng +
+            "<br/><input onclick='alert(123)' value='按钮1' type='button' >"+
+            "<br/><input value='按钮2' type='button'>"+
+            "<br/><input value='按钮3' type='button'>"+
+            "<br/><input value='按钮4' type='button'>"
         ).openOn(map);
     });
+
     //    img.bindPopup("窗口弹出");
     img.bindPopup("<h5>我是弹出层事件哦,点击图片外面是地图点击事件</h5><br/>" +
         "<img src='./png/1.png' width='100'>" +
         "<img src='./png/2.png' width='100'>" +
-        "<img src='./png/3.png' width='100'>", {maxWidth: 2000, minWidth: 300});
+        "<img src='./png/3.png' width='100'>",
+        {maxWidth: 2000, minWidth: 300});
     //    img.on("popupopen",function () {
     //        console.log("弹出窗口事件");
     //    });

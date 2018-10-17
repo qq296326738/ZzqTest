@@ -75,4 +75,10 @@ public class HelloWorld {
         return users;
     }
 
+    @RequestMapping("table")
+    public String table() {
+
+        return "jquery_table";
+    }
+
 }
